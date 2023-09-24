@@ -1,2 +1,8 @@
-# gabrijas-mentory
-backend API nodejs mentory with gabrijas
+ordem de execução para tabelas com dependência de relacionamento: 
+
+populate/semestre
+populate/materia
+populate/resultado
+populate/aluno
+
+populate/professor
