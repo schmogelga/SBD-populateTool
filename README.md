@@ -1,8 +1,7 @@
-ordem de execução para tabelas com dependência de relacionamento: 
+***Ordem de execução para tabelas com dependência de relacionamento:***
 
-populate/semestre
-populate/materia
-populate/resultado
-populate/aluno
+- populate/semestre -> populate/materia -> populate/resultado
 
-populate/professor
+- populate/aluno
+
+- populate/professor
