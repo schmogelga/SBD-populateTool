@@ -80,12 +80,12 @@ app.post("/populate/professor", async (req, res) => {
 
 app.post("/populate/aluno", async (req, res) => {
   let sql = "insert into aluno values ";
-  const max = 500;
+  const max = 1000000;
 
   const { rows } = await db.query(
-    "SELECT cod_alu FROM aluno ORDER BY cod_alu DESC LIMIT 1"
+    "SELECT cod_aluno FROM aluno ORDER BY cod_aluno DESC LIMIT 1"
   );
-  const lastId = rows.length > 0 ? rows[0].cod_alu + 1 : 1;
+  const lastId = rows.length > 0 ? rows[0].cod_aluno + 1 : 1;
 
   const pkRange = await getPKRange("cod_resultado", "resultado");
 
@@ -112,32 +112,36 @@ app.post("/populate/aluno", async (req, res) => {
 });
 
 app.post("/populate/resultado", async (req, res) => {
-  let sql = "insert into resultado values ";
-  const max = 100000;
 
-  const { rows } = await db.query(
-    "SELECT cod_resultado FROM resultado ORDER BY cod_resultado DESC LIMIT 1"
-  );
-  const lastId = rows.length > 0 ? rows[0].cod_resultado + 1 : 1;
-
-  const materiaPKRange = await getPKRange("cod_materia", "materia");
-  const semestrePKRange = await getPKRange("cod_semestre", "semestre");
-
-  for (let i = lastId; i <= lastId + max; i++) {
-    const resutado = Faker.faker.helpers.rangeToNumber({ min: 2, max: 10 });
-    const cod_materia = Faker.faker.helpers.rangeToNumber(materiaPKRange);
-    const cod_semestre = Faker.faker.helpers.rangeToNumber(semestrePKRange);
-
-    sql += `(${i}, '${resutado}', '${cod_materia}', '${cod_semestre}')`;
-
-    if (i < lastId + max) {
-      sql += ", ";
+    for( let j = 0; j < 20; j++){
+      let sql = "insert into resultado values ";
+      const max = 1000000;
+  
+      const { rows } = await db.query(
+        "SELECT cod_resultado FROM resultado ORDER BY cod_resultado DESC LIMIT 1"
+      );
+      const lastId = rows.length > 0 ? rows[0].cod_resultado + 1 : 1;
+  
+      const materiaPKRange = await getPKRange("cod_materia", "materia");
+      const semestrePKRange = await getPKRange("cod_semestre", "semestre");
+  
+      for (let i = lastId; i <= lastId + max; i++) {
+        const resutado = Faker.faker.helpers.rangeToNumber({ min: 2, max: 10 });
+        const cod_materia = Faker.faker.helpers.rangeToNumber(materiaPKRange);
+        const cod_semestre = Faker.faker.helpers.rangeToNumber(semestrePKRange);
+  
+        sql += `(${i}, '${resutado}', '${cod_materia}', '${cod_semestre}')`;
+  
+        if (i < lastId + max) {
+          sql += ", ";
+        }
+      }
+  
+      console.log(j);
+  
+      await db.query(sql);
     }
-  }
 
-  console.log(sql);
-
-  await db.query(sql);
   res.status(200).send("Dados populados com sucesso.");
 });
 
@@ -195,11 +199,11 @@ app.post("/populate/semestre", async (req, res) => {
 
 app.post("/populate/turma", async (req, res) => {
   let sql = "insert into turma values ";
-  const max = 40;
+  const max = 100000;
   const professorPkRange = await getPKRange("cod_prof", "professor");
 
   for (let i = 1; i <= max; i++) {
-    const description = Faker.faker.lorem.words({ min: 3, max: 5 });
+    const description = Faker.faker.lorem.words({ min: 3, max: 4 });
     const course = Faker.faker.lorem.words({ min: 1, max: 2 });
     const initialDate = getRandomDate(2013, 2020);
     const cod_professor = Faker.faker.helpers.rangeToNumber(professorPkRange);
