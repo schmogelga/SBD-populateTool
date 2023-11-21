@@ -1,11 +1,18 @@
 // Import required modules
-const express = require("express");
-const bodyParser = require("body-parser");
-const db = require("./dbConnection");
-const Faker = require("@faker-js/faker");
+const express = require('express');
+const bodyParser = require('body-parser');
+const { MongoClient } = require('mongodb');
+const dbConnection = require('./dbConnection');
+const Faker = require('@faker-js/faker');
+require('dotenv').config();
+
 
 // Create an Express application
 const app = express();
+
+// MongoDB connection string (replace with your actual MongoDB connection string)
+const mongoURI = process.env.MONGODB_QUERY_STRING;
+const dbName = process.env.MONGODB_DB_NAME;
 
 function formatDateToYYYYMMDD(date) {
   const year = date.getFullYear();
@@ -40,6 +47,36 @@ async function getPKRange(pk, tabela) {
 
 // Middleware to parse JSON requests
 app.use(bodyParser.text());
+
+// Endpoint to query MongoDB
+app.get('/query-mongodb', async (req, res) => {
+  try {
+      // Capture the collectionName from query parameters
+      const collectionName = req.query.collectionName;
+      if (!collectionName) {
+          return res.status(400).json({ error: 'Missing collectionName in query parameters' });
+      }
+
+      // Connect to MongoDB
+      const client = new MongoClient(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+      await client.connect();
+
+      // Specify the database and collection
+      const db = client.db(dbName);
+      const collection = db.collection(collectionName);
+
+      // Retrieve the entire collection
+      const result = await collection.find().toArray();
+
+      // Close the MongoDB connection
+      await client.close();
+
+      res.status(200).json({ result });
+  } catch (error) {
+      console.error('Error querying MongoDB:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // POST route
 app.post("/api/submit", async (req, res) => {
